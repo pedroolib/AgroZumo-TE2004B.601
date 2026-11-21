@@ -1,0 +1,29 @@
+digraph activity {
+  node [fontname="Helvetica", fontsize=10, shape=box, style=rounded]; edge [fontname="Helvetica", fontsize=9];
+  start [shape=circle, label="", width=0.25, style=filled, fillcolor=black];
+  build [label="Build path from waypoint table\n(lines + turn arcs, speed profile)"];
+  wait [label="Wait for button A\n(print pose and distance to P14)"];
+  rx [label="New LPdata frame on CAN?", shape=diamond, style=""];
+  to [label="No frame for 500 ms?", shape=diamond, style=""];
+  stop0 [label="Stop motors, wait for data"];
+  comp [label="Move pose forward by the camera delay"];
+  loc [label="Locate tractor on the current section\n(closest point in the next 25 cm)"];
+  wp [label="Passed the next waypoint?", shape=diamond, style=""];
+  pr [label="Print \"Reached waypoint Pn\""];
+  fin [label="Final waypoint P14?", shape=diamond, style=""];
+  target [label="Take target 9 cm ahead\nin the stored order"];
+  turn [label="Heading error > 70 deg?", shape=diamond, style=""];
+  pivot [label="Spin in place toward target"];
+  pp [label="Turn: k = 2 sin(alpha) / d\nSpeed: from profile (straight / turn)"];
+  set [label="Update left and right motor commands"];
+  done [label="Stop motors, print lap time"];
+  end [shape=doublecircle, label="", width=0.2, style=filled, fillcolor=black];
+  start -> build -> wait -> rx;
+  rx -> to [label="no"]; to -> rx [label="no"]; to -> stop0 [label="yes"]; stop0 -> rx;
+  rx -> comp [label="yes"]; comp -> loc -> wp;
+  wp -> pr [label="yes"]; pr -> fin; wp -> fin [label="no"];
+  fin -> done [label="yes"]; done -> end;
+  fin -> target [label="no"]; target -> turn;
+  turn -> pivot [label="yes"]; turn -> pp [label="no"];
+  pivot -> set; pp -> set; set -> rx;
+}

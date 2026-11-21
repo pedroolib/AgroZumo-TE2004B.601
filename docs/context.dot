@@ -1,0 +1,17 @@
+digraph context {
+  rankdir=LR; node [fontname="Helvetica", fontsize=11]; edge [fontname="Helvetica", fontsize=9];
+  sys [label="AgroZumo tractor\n(Pico 2 W + Zumo 2040 + PCB)", shape=box, style="rounded,filled", fillcolor="#dbe8f7", width=2.6, height=1.2];
+  cam [label="Local positioning setup\n(ceiling camera + PC)", shape=box];
+  op [label="Operator", shape=box];
+  track [label="Challenge track\n(gray-level terrain, black line)", shape=box];
+  laptop [label="Laptop\n(lp_tool.py)", shape=box];
+  bat [label="4 AA batteries", shape=box];
+  cam -> sys [label="Wi-Fi UDP 5000: JSON pose\n(x, y, angle) of marker 3"];
+  cam -> laptop [label="same UDP broadcast"];
+  laptop -> op [label="waypoints.h, route plot,\nlap times"];
+  op -> sys [label="button A (start lap),\nflash .uf2 over USB"];
+  sys -> op [label="USB serial: pose, waypoints\nreached, lap time"];
+  track -> sys [label="reflectance (5 line sensors)"];
+  sys -> track [label="track motion (left/right motors)"];
+  bat -> sys [label="power, switch ON"];
+}

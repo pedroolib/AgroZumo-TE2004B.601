@@ -1,0 +1,25 @@
+digraph deployment {
+  rankdir=TB; nodesep=0.5; ranksep=0.55;
+  node [fontname="Helvetica", fontsize=13, shape=box3d]; edge [fontname="Helvetica", fontsize=11];
+  subgraph cluster_top { style=invis;
+    subgraph cluster_pc { label="Camera PC"; fontname="Helvetica"; fontsize=14; style=dashed;
+      cpc [label="ArUco detection\nUDP broadcaster"]; }
+    subgraph cluster_lap { label="Laptop"; fontname="Helvetica"; fontsize=14; style=dashed;
+      lp [label="lp_tool.py\nrecord / extract / log / plot"]; }
+  }
+  subgraph cluster_tractor { label="Tractor (PCBTractor board)"; fontname="Helvetica"; fontsize=14; style=dashed;
+    pico [label="Raspberry Pi Pico 2 W\nLocalPositioning.uf2\nJSON parse -> LPdata"];
+    can1 [label="MCP2515 + TJA1050\n8 MHz, 120 ohm (J1)"];
+    can2 [label="MCP2515 + TJA1050\n8 MHz, 120 ohm (J1)"];
+    zumo [label="Zumo 2040 (RP2040)\nWaypointLapZumo.uf2\nfollow.c + waypoints.h"];
+    mot [label="Left / right motors\nGP10, GP11, GP14, GP15"];
+    ls [label="Front sensor array\nDN1-DN5 = GP22-GP18\n(AlphaAngleZumo.uf2)"];
+  }
+  cpc -> lp [label="  UDP 5000"];
+  cpc -> pico [label="  Wi-Fi \"embedded\"\n  UDP port 5000"];
+  pico -> can1 [label="  SPI0 GP16-GP20"];
+  can1 -> can2 [label="  CAN 500 kbps\n  ID 0x100, DLC 6"];
+  can2 -> zumo [label="  SPI0 GP0-GP3, INT GP28"];
+  zumo -> mot [label="  PWM + direction"];
+  ls -> zumo [label="  RC timing"];
+}
